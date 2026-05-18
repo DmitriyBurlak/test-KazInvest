@@ -1,5 +1,7 @@
 # Test Chat (тестовое)
 
+**Демо:** [https://nuxt-chat.dmitriyburlak.ru](https://nuxt-chat.dmitriyburlak.ru)
+
 Веб-чат на **Nuxt 4** + **Nuxt UI** + **Comark** (Markdown в ответах ассистента). Одна страница `/` — диалог с ИИ через backend-прокси **OpenRouter** (Nitro, `server/`).
 
 - **Структура** — ориентир FSD: `features`, `widgets`, `pages`, `shared`; серверная часть в `server/`.
