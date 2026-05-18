@@ -1,5 +1,5 @@
 <script setup>
-import AppLogo from './shared/AppLogo.vue'
+import { AppLogo } from '~/shared'
 
 useHead({
   meta: [
@@ -14,7 +14,7 @@ useHead({
 })
 
 const title = 'ChatGPT Web App'
-const description = 'Тестовое задание для KazInvest'
+const description = 'Тестовое задание KazInvest — чат с ИИ'
 
 useSeoMeta({
   title,
@@ -27,7 +27,7 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <UHeader>
+    <UHeader :toggle="false">
       <template #left>
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />
@@ -38,7 +38,7 @@ useSeoMeta({
         <UColorModeButton />
 
         <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
+          to="https://github.com/DmitriyBurlak"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
@@ -48,7 +48,7 @@ useSeoMeta({
       </template>
     </UHeader>
 
-    <UMain>
+    <UMain class="flex flex-col flex-1 min-h-0 overflow-hidden">
       <NuxtPage />
     </UMain>
   </UApp>
