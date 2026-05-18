@@ -1,0 +1,32 @@
+stages:
+  - deploy
+  - cleanup
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        env_config_name: ".env.prod"
+        image_path: "nuxt-chat"
+        compose_path: "docker-compose.yml"
+
+deploy:
+  stage: deploy
+  tags:
+    - nuxt-chat-runner
+  script:
+    - echo "Deploying application... '$CI_COMMIT_BRANCH'"
+    - cp $env_config_name .env
+    - docker compose -p $image_path -f $compose_path down && \
+    - docker compose -p $image_path -f $compose_path --env-file .env up -d --build
+
+cleanup:
+  stage: cleanup
+  tags:
+    - nuxt-chat-runner
+  script:
+    - docker system prune -af --volumes
+    - docker builder prune --all --force
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"
+  when: on_success
