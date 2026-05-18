@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useChat } from '~/features/chat-send'
+import { getMessageText } from '~/features/chat-send/lib/get-message-text'
 import { useSpeechRecognition, VoiceInputControls } from '~/features/voice-input'
 import { useMessageActions } from '../composable/use-message-actions'
+import ChatMessageContent from './ChatMessageContent.vue'
 
 const {
   messages,
   input,
   status,
   isBusy,
+  canSend,
   sendMessage,
   resetChat
 } = useChat()
@@ -56,6 +59,10 @@ watch(() => speech.error.value, (message) => {
 })
 
 function onSubmit() {
+  if (!canSend.value) {
+    return
+  }
+
   sendMessage()
 }
 
@@ -118,6 +125,17 @@ async function onVoiceConfirm() {
           should-auto-scroll
           class="w-full"
         >
+          <template #content="{ message }">
+            <ClientOnly>
+              <ChatMessageContent :message="message" />
+              <template #fallback>
+                <p class="whitespace-pre-wrap text-sm">
+                  {{ getMessageText(message) }}
+                </p>
+              </template>
+            </ClientOnly>
+          </template>
+
           <template #indicator>
             <div class="flex items-center gap-2 py-2">
               <UChatShimmer
@@ -134,7 +152,7 @@ async function onVoiceConfirm() {
           v-model="input"
           variant="subtle"
           placeholder="Введите ваше сообщение здесь…"
-          :disabled="isBusy || isSpeechListening"
+          :disabled="isSpeechListening"
           :maxrows="6"
           class="w-full"
           @submit="onSubmit"

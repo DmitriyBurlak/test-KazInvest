@@ -11,10 +11,13 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@comark/nuxt": "^0.3.1",
+    "@comark/vue": "^0.3.1",
     "@iconify-json/lucide": "^1.2.106",
     "@iconify-json/simple-icons": "^1.2.81",
     "@nuxt/ui": "^4.7.1",
     "nuxt": "^4.4.5",
+    "shiki": "^4.0.2",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
@@ -24,5 +27,14 @@
     "typescript": "^6.0.3",
     "vue-tsc": "^3.2.8"
   },
-  "packageManager": "pnpm@10.33.4"
+  "packageManager": "pnpm@10.33.4",
+  "pnpm": {
+    "packageExtensions": {
+      "comark": {
+        "dependencies": {
+          "shiki": "^4.0.0"
+        }
+      }
+    }
+  }
 }

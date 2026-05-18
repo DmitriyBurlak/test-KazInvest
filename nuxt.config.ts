@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@comark/nuxt'
   ],
 
   devtools: {
@@ -12,6 +13,10 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  ui: {
+    prose: true
+  },
 
   runtimeConfig: {
     openrouterApiKey: process.env.NUXT_OPENROUTER_API_KEY,
