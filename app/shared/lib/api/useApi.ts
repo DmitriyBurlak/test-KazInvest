@@ -1,5 +1,6 @@
 import { useFetch, useRuntimeConfig, type UseFetchOptions } from 'nuxt/app'
 import type { ResponseDto } from './types'
+import { getApiErrorMessage } from './get-api-error-message'
 
 /**
  * ResponseT — тип ответа сервера (поле data в ResponseDto, либо тело ответа целиком).
@@ -8,7 +9,7 @@ import type { ResponseDto } from './types'
 export function useApi<ResponseT, MappedResponseT = ResponseT>({
   urlPath,
   options,
-  isShowMessageError,
+  isShowMessageError = false,
   server = false
 }: {
   urlPath: string
@@ -31,23 +32,15 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
     headers,
     server,
     async onResponseError(context) {
-      if (!isClient) {
-        return
-      }
-
-      const responseData = context.response._data as { message?: string } | undefined
-      const message = responseData?.message
-
-      if (isShowMessageError) {
+      if (isClient && isShowMessageError) {
         toast.add({
           title: 'Ошибка',
-          description: message || 'Произошла непредвиденная ошибка',
+          description: getApiErrorMessage(context),
           color: 'error'
         })
       }
 
       if (typeof userOnResponseError === 'function') {
-        // TODO: разобрать по сле api
         await userOnResponseError(context)
       }
     }

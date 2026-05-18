@@ -7,12 +7,12 @@ const {
   messages,
   input,
   status,
-  error,
   isBusy,
-  clearError,
   sendMessage,
   resetChat
 } = useChat()
+
+const toast = useToast()
 
 const { getActions, copiedMessageId } = useMessageActions()
 
@@ -28,6 +28,9 @@ const messagesWithActions = computed(() => {
 const promptSpacing = 16
 
 const speech = useSpeechRecognition({
+  onRecordingStart() {
+    input.value = ''
+  },
   onRecordingCancel() {
     input.value = ''
   },
@@ -36,20 +39,20 @@ const speech = useSpeechRecognition({
   }
 })
 
-const displayError = computed(() => error.value ?? speech.error.value)
-
 const isSpeechSupported = computed(() => speech.isSupported.value)
 const isSpeechListening = computed(() => speech.isListening.value)
 
-function dismissError() {
-  clearError()
-  speech.clearError()
-}
-
-watch(input, () => {
-  if (error.value) {
-    clearError()
+watch(() => speech.error.value, (message) => {
+  if (!message) {
+    return
   }
+
+  toast.add({
+    title: 'Голосовой ввод',
+    description: message,
+    color: 'error'
+  })
+  speech.clearError()
 })
 
 function onSubmit() {
@@ -57,10 +60,12 @@ function onSubmit() {
 }
 
 async function onVoiceConfirm() {
+  const text = input.value.trim()
   speech.confirm()
   await nextTick()
 
-  if (input.value.trim()) {
+  if (text) {
+    input.value = text
     await sendMessage()
   }
 }
@@ -80,16 +85,6 @@ async function onVoiceConfirm() {
         @click="resetChat"
       />
     </div>
-
-    <UAlert
-      v-if="displayError"
-      color="error"
-      variant="soft"
-      icon="i-lucide-alert-circle"
-      :title="displayError"
-      :close-button="{ icon: 'i-lucide-x', color: 'neutral', variant: 'link' }"
-      @update:open="(open: boolean) => { if (!open) dismissError() }"
-    />
 
     <div class="flex flex-col flex-1 min-h-0 rounded-xl ring ring-default bg-default/50 overflow-hidden">
       <div class="relative flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-2 py-4">

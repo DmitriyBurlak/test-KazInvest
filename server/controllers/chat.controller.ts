@@ -3,7 +3,7 @@ import { chatService } from '#server/services'
 import type { ChatRequestBody, ChatResponseBody } from '#server/types'
 import { ValidationError } from '#server/utils/error'
 
-const MAX_MESSAGE_LENGTH = 40
+const MAX_MESSAGE_LENGTH = 500
 
 export const chatController = {
   async sendMessage(event: H3Event): Promise<ChatResponseBody> {

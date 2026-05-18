@@ -11,27 +11,24 @@ export function useChat() {
   const messages = ref<ChatMessage[]>([])
   const input = ref('')
   const status = ref<ChatStatus>('ready')
-  const error = ref<string | null>(null)
 
-  const requestBody = ref({ message: '' })
+  /** Текст текущего запроса — body читается через computed, чтобы execute() не отправлял старое тело */
+  const messageToSend = ref<string | null>(null)
 
-  const { data, error: apiError, execute } = useApi<ChatApiResponse>({
+  const { data, error: apiError, execute, clear } = useApi<ChatApiResponse>({
     urlPath: '/api/chat',
     options: {
       method: 'POST',
-      body: requestBody,
+      body: computed(() => ({ message: messageToSend.value ?? '' })),
       immediate: false,
-      watch: false
+      watch: false,
+      dedupe: 'cancel'
     },
-    isShowMessageError: false
+    isShowMessageError: true
   })
 
   const isBusy = computed(() => status.value === 'submitted' || status.value === 'streaming')
   const canSend = computed(() => input.value.trim().length > 0 && !isBusy.value)
-
-  function clearError() {
-    error.value = null
-  }
 
   async function sendMessage() {
     const text = input.value.trim()
@@ -39,17 +36,23 @@ export function useChat() {
       return
     }
 
-    clearError()
-    messages.value.push(createUserMessage(text))
+    const userMessage = createUserMessage(text)
+    messages.value.push(userMessage)
     input.value = ''
     status.value = 'submitted'
-    requestBody.value = { message: text }
+    messageToSend.value = text
 
+    await nextTick()
     await execute()
 
     if (apiError.value) {
-      status.value = 'error'
-      error.value = apiError.value.message || 'Не удалось получить ответ. Попробуйте ещё раз.'
+      const index = messages.value.findIndex(message => message.id === userMessage.id)
+      if (index !== -1) {
+        messages.value.splice(index, 1)
+      }
+      input.value = text
+      status.value = 'ready'
+      messageToSend.value = null
       return
     }
 
@@ -59,23 +62,23 @@ export function useChat() {
     }
 
     status.value = 'ready'
+    messageToSend.value = null
   }
 
   function resetChat() {
     messages.value = []
     input.value = ''
     status.value = 'ready'
-    clearError()
+    messageToSend.value = null
+    clear()
   }
 
   return {
     messages,
     input,
     status,
-    error,
     isBusy,
     canSend,
-    clearError,
     sendMessage,
     resetChat
   }

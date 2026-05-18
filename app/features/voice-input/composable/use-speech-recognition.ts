@@ -73,6 +73,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     activeSession = false
     isListening.value = false
     recognition?.stop()
+    finalizedTranscript = ''
   }
 
   function start() {
